@@ -392,7 +392,7 @@ function renderHome(){
 }
 
 // ── Navigate ──
-function navigate(key){
+function navigate(key,skipHistory){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("show"));
   document.querySelectorAll(".sb-item").forEach(el=>el.classList.remove("active"));
   document.querySelector(`.sb-item[data-key="${key}"]`)?.classList.add("active");
@@ -400,8 +400,13 @@ function navigate(key){
   else if(CATS.includes(key)){curCatSort="score";showCatPage(key);}
   else if(key==="keywords"){showKwPage();}
   else if(key==="top"){curTopFilter="all";showTopPage();}
+  if(!skipHistory)history.pushState({page:key},'',"#"+key);
   window.scrollTo(0,0);
 }
+window.addEventListener("popstate",function(e){
+  const key=e.state?e.state.page:(location.hash?location.hash.slice(1):"dashboard");
+  navigate(key,true);
+});
 
 // ── Cat page with filter ──
 let activeCatKey="";let curViewMode="list";
@@ -620,6 +625,9 @@ function changeMonth(m){
 }
 
 renderSidebar();renderHome();
+const initHash=location.hash?location.hash.slice(1):"dashboard";
+if(initHash!=="dashboard")navigate(initHash,true);
+else history.replaceState({page:"dashboard"},'',"#dashboard");
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDetail();});
 </script>
 </body>
